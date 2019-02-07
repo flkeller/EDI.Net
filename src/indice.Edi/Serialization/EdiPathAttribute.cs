@@ -40,7 +40,7 @@ namespace indice.Edi.Serialization
         /// <summary>
         /// Zero based index of the <see cref="EdiContainerType.Element"/> location inside the <seealso cref="EdiContainerType.Segment"/>
         /// </summary>
-        public int ElementIndex {
+        public int? ElementIndex {
             get {
                 return _Path.ElementIndex;
             }

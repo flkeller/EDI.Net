@@ -13,9 +13,9 @@ namespace indice.Edi
     public struct EdiPath : IComparable<EdiPath>, IEquatable<EdiPath>
     {
 
-        private const string PARSE_PATTERN = @"^([A-Z]{1}[A-Z0-9]{1,3})?([\[/]{1}(\d+?)\]?)?([\[/]{1}(\d+?)\]?)?$"; // supports both "STX/2/1 and STX[2][1]"
+        private const string PARSE_PATTERN = @"^([A-Z]{1}[A-Z0-9]{1,3}|[\?]{1})?([\[/]{1}([0-9\?]+?)\]?)?([\[/]{1}(\d+?)\]?)?$"; // supports both "STX/2/1 and STX[2][1]"
         private readonly string _Segment;
-        private readonly int _ElementIndex;
+        private readonly int? _ElementIndex;
         private readonly int _ComponentIndex;
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace indice.Edi
         /// <summary>
         /// Zero based index of the <see cref="EdiContainerType.Element"/> location inside the <seealso cref="EdiContainerType.Segment"/>
         /// </summary>
-        public int ElementIndex {
+        public int? ElementIndex {
             get { return _ElementIndex; }
         }
 
@@ -62,7 +62,7 @@ namespace indice.Edi
         /// <param name="segment">The <see cref="EdiContainerType.Segment"/> name</param>
         /// <param name="elementIndex">Zero based index of the <see cref="EdiContainerType.Element"/> location inside the <seealso cref="EdiContainerType.Segment"/></param>
         /// <param name="componentIndex">Zero based index of the <see cref="EdiContainerType.Component"/> location inside an <seealso cref="EdiContainerType.Element"/></param>
-        public EdiPath(string segment, int elementIndex, int componentIndex) {
+        public EdiPath(string segment, int? elementIndex, int componentIndex) {
             _Segment = segment ?? string.Empty;
             _ElementIndex = elementIndex;
             _ComponentIndex = componentIndex;
@@ -154,7 +154,7 @@ namespace indice.Edi
                 int component;
                 int.TryParse(match.Groups[3].Value, out element);
                 int.TryParse(match.Groups[5].Value, out component);
-                return new EdiPath(segment, element, component);
+                return new EdiPath(segment, match.Groups[3].Value == "?" ? null : (int?)element, component);
             } else {
                 return new EdiPath();
             }
@@ -167,7 +167,7 @@ namespace indice.Edi
         /// <returns></returns>
         public int CompareTo(EdiPath other) {
             var result = string.Compare(Segment, other.Segment, StringComparison.OrdinalIgnoreCase);
-            if (result == 0) result = ElementIndex.CompareTo(other.ElementIndex);
+            if (result == 0) result = ElementIndex.HasValue && other.ElementIndex.HasValue ? ElementIndex.Value.CompareTo(other.ElementIndex.Value) : (!ElementIndex.HasValue && !other.ElementIndex.HasValue ? 0 : -1);
             if (result == 0) result = ComponentIndex.CompareTo(other.ComponentIndex);
             return result;
         }

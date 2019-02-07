@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Xunit;
 
 namespace indice.Edi.Tests
@@ -40,6 +37,46 @@ namespace indice.Edi.Tests
         public void ParseHandlesOneLetterTwoNumberSegmentNames(string text) {
             var path = EdiPath.Parse(text);
             Assert.Equal("B10[0][0]", path.ToString());
+        }
+
+        [Trait(Traits.Tag, "Parser")]
+        [InlineData("GS[?][0]")]
+        [InlineData("GS/?/0")]
+        [InlineData("GS/?")]
+        [Theory]
+        public void ParseHandlesTwoLetterWildcard(string text) {
+            var path = EdiPath.Parse(text);
+            Assert.Equal("GS[?][0]", path.ToString());
+        }
+
+        [Trait(Traits.Tag, "Parser")]
+        [InlineData("DTM[?][0]")]
+        [InlineData("DTM/?/0")]
+        [InlineData("DTM/?")]
+        [Theory]
+        public void ParseHandlesThreeLetterWildcard(string text) {
+            var path = EdiPath.Parse(text);
+            Assert.Equal("DTM[?][0]", path.ToString());
+        }
+
+        [Trait(Traits.Tag, "Parser")]
+        [InlineData("?[0][0]")]
+        [InlineData("?/0/0")]
+        [InlineData("?/0")]
+        [Theory]
+        public void ParseHandlesWildcardIndex(string text) {
+            var path = EdiPath.Parse(text);
+            Assert.Equal("?[0][0]", path.ToString());
+        }
+
+        [Trait(Traits.Tag, "Parser")]
+        [InlineData("?[?][0]")]
+        [InlineData("?/?/0")]
+        [InlineData("?/?")]
+        [Theory]
+        public void ParseHandlesWildcardIndexWilldcard(string text) {
+            var path = EdiPath.Parse(text);
+            Assert.Equal("?[?][0]", path.ToString());
         }
 
         [Trait(Traits.Tag, "Writer")]

@@ -77,7 +77,7 @@ namespace indice.Edi
                     mask = ALL_ARRAY_FORMAT;
                     break;
             }
-            return string.Format(mask, path.Segment, path.ElementIndex, path.ComponentIndex);
+            return string.Format(mask, path.Segment, path.ElementIndex.HasValue ? path.ElementIndex.ToString() :"?", path.ComponentIndex);
         }
         
         private string HandleOtherFormats(string format, object arg) {
